@@ -1,0 +1,14 @@
+Compression = Coding + Modelling
+
+Coding: How to store symbols.  
+Modelling: Which symbols are more probable.
+
+We want to code the most probable symbols in the least amount of bits. And vice versa.
+
+Coding is solved.
+Modelling is proved unsolvable.
+
+For coding Arithmetic coding is used most commonly. 
+
+
+
