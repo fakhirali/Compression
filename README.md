@@ -8,5 +8,5 @@ We want to code the most probable symbols in the least amount of bits. And vice 
 Coding is solved.
 Modelling is proved unsolvable.
 
-
+On [enwik6](./enwik6) GZIP := 2.8 ME:= 2.54
 
