@@ -1,6 +1,7 @@
 import numpy as np
 from collections import defaultdict
 import math
+from tqdm import tqdm
 
 enwik6 = open('enwik6', 'rb').read()
 enwik6_zip = open('enwik6.zip', 'rb').read()
@@ -51,6 +52,31 @@ class MultipleNgram:
             context = context[-self.n:]
         return bits
 
+    def get_bits_offline(self, enwik):
+        # getting stats
+        context = enwik[:1]
+        for byte in enwik[1:]:
+            for i in range(1, min(self.n + 1, len(context) + 1)):
+                if self.freqs[context[:i]][byte] != 0:
+                    self.freqs[context[:i]][byte] += 1
+                else:
+                    self.freqs[context[:i]][byte] += 1
+            context += bytes([byte])
+            context = context[-self.n:]
+
+        bits = 0
+        context = enwik[:1]
+        for byte in enwik[1:]:
+            prob = 1 / 256
+            for i in range(1, min(self.n + 1, len(context) + 1)):
+                if self.freqs[context[:i]][byte] != 0:
+                    prob = ((self.freqs[context[:i]][byte]) / (sum(self.freqs[context[:i]].values())))
+            bits += 1 + math.log2(1 / prob)
+            context += bytes([byte])
+            context = context[-self.n:]
+        del self.freqs
+        return bits
+
 
 class AverageNgram:
     def __init__(self, n):
@@ -83,19 +109,26 @@ class AverageNgram:
             context = context[-self.n:]
         return bits
 
-models = [Ngram_model(i) for i in range(1, 5)]
-compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
-for i, cf in enumerate(compression_factors):
-    print(f"{i + 1}-gram compression factor {cf}")
 
+# models = [Ngram_model(i) for i in range(1, 5)]
+# compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
+# for i, cf in enumerate(compression_factors):
+#     print(f"{i + 1}-gram compression factor {cf}")
+#
+# print()
+# models = [MultipleNgram(i) for i in range(1, 5)]
+# compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
+# for i, cf in enumerate(compression_factors):
+#     print(f"multiple {i + 1}-gram compression factor {cf}")
+#
 print()
-models = [MultipleNgram(i) for i in range(1, 5)]
-compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
+models = [MultipleNgram(i) for i in range(1, 20)]
+compression_factors = len(enwik6) / (np.array([m.get_bits_offline(enwik6) for m in tqdm(models)]) / 8)
 for i, cf in enumerate(compression_factors):
-    print(f"multiple {i + 1}-gram compression factor {cf}")
-
-print()
-models = [AverageNgram(i) for i in range(1, 5)]
-compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
-for i, cf in enumerate(compression_factors):
-    print(f"average {i + 1}-gram compression factor {cf}")
+    print(f"multiple offline {i + 1}-gram compression factor {cf}")
+#
+# print()
+# models = [AverageNgram(i) for i in range(1, 5)]
+# compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
+# for i, cf in enumerate(compression_factors):
+#     print(f"average {i + 1}-gram compression factor {cf}")
