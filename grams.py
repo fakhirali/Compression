@@ -17,11 +17,11 @@ class Ngram_model:
     def get_bits(self, enwik):
         bits = 0
         context = enwik[:self.n]
-        for i in (enwik[self.n:]):
-            prob = ((self.freqs[context][i] + 1) / (sum(self.freqs[context].values()) + 256))
+        for byte in (enwik[self.n:]):
+            prob = ((self.freqs[context][byte] + 1) / (sum(self.freqs[context].values()) + 256))
             bits += 1 + math.log2(1 / prob)
-            self.freqs[context][i] += 1
-            context += bytes([i])
+            self.freqs[context][byte] += 1
+            context += bytes([byte])
             context = context[-self.n:]
         return bits
 
@@ -95,11 +95,6 @@ class AverageNgram:
 # for i, cf in enumerate(compression_factors):
 #     print(f"multiple {i + 1}-gram compression factor {cf}")
 #
-print()
-models = [MultipleNgram(i) for i in range(1, 20)]
-compression_factors = len(enwik6) / (np.array([m.get_bits_offline(enwik6) for m in tqdm(models)]) / 8)
-for i, cf in enumerate(compression_factors):
-    print(f"multiple offline {i + 1}-gram compression factor {cf}")
 #
 # print()
 # models = [AverageNgram(i) for i in range(1, 5)]
