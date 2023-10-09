@@ -52,32 +52,6 @@ class MultipleNgram:
             context = context[-self.n:]
         return bits
 
-    def get_bits_offline(self, enwik):
-        # getting stats
-        context = enwik[:1]
-        for byte in enwik[1:]:
-            for i in range(1, min(self.n + 1, len(context) + 1)):
-                if self.freqs[context[:i]][byte] != 0:
-                    self.freqs[context[:i]][byte] += 1
-                else:
-                    self.freqs[context[:i]][byte] += 1
-            context += bytes([byte])
-            context = context[-self.n:]
-
-        bits = 0
-        context = enwik[:1]
-        for byte in enwik[1:]:
-            prob = 1 / 256
-            for i in range(1, min(self.n + 1, len(context) + 1)):
-                if self.freqs[context[:i]][byte] != 0:
-                    prob = ((self.freqs[context[:i]][byte]) / (sum(self.freqs[context[:i]].values())))
-            bits += 1 + math.log2(1 / prob)
-            context += bytes([byte])
-            context = context[-self.n:]
-        del self.freqs
-        return bits
-
-
 class AverageNgram:
     def __init__(self, n):
         """
