@@ -30,7 +30,7 @@ class Ngram_model:
 class MultipleNgram:
     def __init__(self, n):
         """
-        Uses the maximum available context
+        Uses the model with the maximum available context
         :param n: Max context length
         """
         self.n = n
@@ -52,38 +52,6 @@ class MultipleNgram:
             context = context[-self.n:]
         return bits
 
-class AverageNgram:
-    def __init__(self, n):
-        """
-        Averages the probs of all the contexts
-        :param n: max context length
-        """
-        self.n = n
-        self.freqs = defaultdict(lambda: defaultdict(int))  # freqs[context][char] = count
-
-    def get_bits(self, enwik):
-        bits = 0
-        context = enwik[:1]
-        for byte in enwik[1:]:
-            total_count = 0
-            byte_count = 0
-            for i in range(1, min(self.n + 1, len(context) + 1)):
-                if self.freqs[context[:i]][byte] != 0:
-                    total_count += (sum(self.freqs[context[:i]].values()))
-                    byte_count += (self.freqs[context[:i]][byte])
-                    self.freqs[context[:i]][byte] += 1
-                else:
-                    self.freqs[context[:i]][byte] += 1
-            if total_count != 0:
-                prob = byte_count / total_count
-            else:
-                prob = 1 / 256
-            bits += 1 + math.log2(1 / prob)
-            context += bytes([byte])
-            context = context[-self.n:]
-        return bits
-
-
 # models = [Ngram_model(i) for i in range(1, 5)]
 # compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
 # for i, cf in enumerate(compression_factors):
@@ -94,10 +62,3 @@ class AverageNgram:
 # compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
 # for i, cf in enumerate(compression_factors):
 #     print(f"multiple {i + 1}-gram compression factor {cf}")
-#
-#
-# print()
-# models = [AverageNgram(i) for i in range(1, 5)]
-# compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
-# for i, cf in enumerate(compression_factors):
-#     print(f"average {i + 1}-gram compression factor {cf}")
