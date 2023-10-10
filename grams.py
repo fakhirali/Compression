@@ -52,11 +52,11 @@ class MultipleNgram:
             context = context[-self.n:]
         return bits
 
-# models = [Ngram_model(i) for i in range(1, 5)]
-# compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
-# for i, cf in enumerate(compression_factors):
-#     print(f"{i + 1}-gram compression factor {cf}")
-#
+models = [Ngram_model(i) for i in range(1, 5)]
+compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
+for i, cf in enumerate(compression_factors):
+    print(f"{i + 1}-gram compression factor {cf}")
+
 # print()
 # models = [MultipleNgram(i) for i in range(1, 5)]
 # compression_factors = len(enwik6) / (np.array([m.get_bits(enwik6) for m in models]) / 8)
