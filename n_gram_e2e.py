@@ -1,127 +1,51 @@
 import math
 from collections import defaultdict
-
-
-def bitstream(data):
-    for byte in data:
-        bits = format(byte, '08b')
-        for b in bits:
-            yield b
-
+from coding import bitstream, Encoder, Decoder, write_to_file
 
 enwik = open('enwik3', 'rb').read() + b'\x00'  # adding a byte to the end to make sure the last bit is written
 enwik_zip = open('enwik3.zip', 'rb').read()
-print(f'gzip compression factor {len(enwik) / len(enwik_zip)}')
 
-compressed_data = ''
+encoder = Encoder()
 freqs = defaultdict(lambda: [1, 1])  # freqs[context] = [0s, 1s]
 n = 16
 context = '0' * n
-low = 0
-high = 255  # highest 8-bit number also the infinite stream of 1s
+theoretical_compression = 0
 for bit in (bitstream(enwik)):
     prob = freqs[context][0] / sum(freqs[context])
-    r = high - low
-    point = low + int(prob * r)
+    encoder.encode(bit, prob)
     if bit == '1':
         freqs[context][1] += 1
-        low = point + 1
+        theoretical_compression += math.log2(1 / (1-prob))
     else:
         freqs[context][0] += 1
-        high = point
+        theoretical_compression += math.log2(1 / prob)
     context += bit
     context = context[-n:]
-    while (high >> 7) == (low >> 7):
-        minus = 0
-        if high >> 7 == 1:
-            minus = 256
-        compressed_data += str(high >> 7)
-        high = (high << 1) - minus + 1
-        low = (low << 1) - minus
-    assert high > low, f"{high}, {low}"
-
-print(len(enwik)-1, math.ceil(len(compressed_data) / 8), len(enwik_zip))
+compressed_data = encoder.compressed_data
+print(len(enwik)-1, math.ceil(len(compressed_data) / 8), len(enwik_zip), theoretical_compression / 8)
 
 # saving the compressed file
-file = open('enwik.ht', 'wb')
-bytes_to_write = []
-acc_bits = ''
-for bit in compressed_data:
-    if len(acc_bits) == 8:
-        bytes_to_write.append(int(acc_bits, 2))
-        acc_bits = ''
-    acc_bits += bit
-for i in range(8 - len(acc_bits)):
-    acc_bits += '0'
-bytes_to_write.append(int(acc_bits, 2))
-file.write(bytes(bytes_to_write))
-file.close()
+write_to_file('enwik.ht', compressed_data)
 
-# assert False
 # decompressing
-
 compressed_data = open('enwik.ht', 'rb').read()
 bit_stream = bitstream(compressed_data)
-binary_num = ''
-for i in range(8):
-    binary_num += next(bit_stream)
-num = int(binary_num, 2)
+decoder = Decoder(bit_stream)
 
-uncompressed_data = ''
 freqs = defaultdict(lambda: [1, 1])
 context = '0' * n
-low = 0
-high = 255
-i = 8
-while i < len(compressed_data) * 8:
+while True:
     prob = freqs[context][0] / sum(freqs[context])
-    r = high - low
-    point = low + int(prob * r)
-    if num > point:
-        uncompressed_data += '1'
-        freqs[context][1] += 1
-        low = point + 1
-        context += uncompressed_data[-1]
-    else:
-        uncompressed_data += '0'
-        freqs[context][0] += 1
-        high = point
-        context += uncompressed_data[-1]
-    context = context[-n:]
-    while (high >> 7) == (low >> 7):
-        minus = 0
-        if high >> 7 == 1:
-            minus = 256
-        high = (high << 1) - minus + 1
-        low = (low << 1) - minus
-        if (num >> 7) == 1:
-            minus = 256
-        else:
-            minus = 0
-        next_bit = next(bit_stream, None)
-        if next_bit is None:
-            num = None
-            break
-        num = (num << 1) - minus + int(next_bit)
-
-        i += 1
-    if num is None:
+    next_bit = decoder.decode(prob)
+    if next_bit is None:
         break
-    # input()
-
-file = open('enwik.un', 'wb')
-bytes_to_write = []
-acc_bits = ''
-for bit in uncompressed_data:
-    if len(acc_bits) == 8:
-        bytes_to_write.append(int(acc_bits, 2))
-        acc_bits = ''
-    acc_bits += bit
-for i in range(8 - len(acc_bits)):
-    acc_bits += '0'
-bytes_to_write.append(int(acc_bits, 2))
-bytes_to_write = bytes_to_write[:-1]  # removing the last null char
-file.write(bytes(bytes_to_write))
-file.close()
-
-assert enwik == open('enwik.un', 'rb').read() + b'\x00'
+    if next_bit == '1':
+        freqs[context][1] += 1
+        context += '1'
+    else:
+        freqs[context][0] += 1
+        context += '0'
+    context = context[-n:]
+uncompressed_data = decoder.uncompressed_data
+write_to_file('enwik.un', uncompressed_data)
+assert enwik == open('enwik.un', 'rb').read()

@@ -33,6 +33,12 @@ class Encoder:
         self.compressed_data = ''
 
     def encode(self, bit, prob):
+        '''
+        
+        :param bit: 
+        :param prob: of the bit being 0
+        :return: 
+        '''
         r = self.high - self.low
         point = self.low + int(prob * r)
         if bit == '1':

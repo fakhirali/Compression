@@ -5,12 +5,11 @@ from coding import bitstream, Encoder, Decoder, write_to_file
 
 enwik = open('enwik3', 'rb').read() + b'\x00'  # adding a byte to the end to make sure the last bit is written
 enwik_zip = open('enwik3.zip', 'rb').read()
-print(f'gzip compression factor {len(enwik) / len(enwik_zip)}')
 
 freqs = defaultdict(lambda: [1, 1])  # freqs[context] = [0s, 1s]
 n = 17
 context = '0' * n
-
+theoretical_compression = 0
 encoder = Encoder()
 for bit in (bitstream(enwik)):
     min_n = 0
@@ -21,14 +20,16 @@ for bit in (bitstream(enwik)):
     if bit == '1':
         for i in range(n):
             freqs[context[i:]][1] += 1
+        theoretical_compression += math.log2(1 / (1-prob))
     else:
         for i in range(n):
             freqs[context[i:]][0] += 1
+        theoretical_compression += math.log2(1 / prob)
     context += bit
     context = context[-n:]
 
 compressed_data = encoder.compressed_data
-print(len(enwik)-1, math.ceil(len(compressed_data) / 8), len(enwik_zip))
+print(len(enwik)-1, math.ceil(len(compressed_data) / 8), len(enwik_zip), theoretical_compression / 8)
 
 # saving the compressed file
 write_to_file('enwik.ht', compressed_data)
