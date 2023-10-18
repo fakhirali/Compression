@@ -1,6 +1,6 @@
 import math
 from collections import defaultdict
-from coding import bitstream, Encoder, Decoder
+from coding import bitstream, Encoder, Decoder, write_to_file
 
 
 enwik = open('enwik3', 'rb').read() + b'\x00'  # adding a byte to the end to make sure the last bit is written
@@ -31,19 +31,7 @@ compressed_data = encoder.compressed_data
 print(len(enwik)-1, math.ceil(len(compressed_data) / 8), len(enwik_zip))
 
 # saving the compressed file
-file = open('enwik.ht', 'wb')
-bytes_to_write = []
-acc_bits = ''
-for bit in compressed_data:
-    if len(acc_bits) == 8:
-        bytes_to_write.append(int(acc_bits, 2))
-        acc_bits = ''
-    acc_bits += bit
-for i in range(8 - len(acc_bits)):
-    acc_bits += '0'
-bytes_to_write.append(int(acc_bits, 2))
-file.write(bytes(bytes_to_write))
-file.close()
+write_to_file('enwik.ht', compressed_data)
 
 # assert False
 # decompressing
@@ -72,19 +60,6 @@ while True:
         context += next_bit
     context = context[-n:]
 uncompressed_data = decoder.uncompressed_data
-file = open('enwik.un', 'wb')
-bytes_to_write = []
-acc_bits = ''
-for bit in uncompressed_data:
-    if len(acc_bits) == 8:
-        bytes_to_write.append(int(acc_bits, 2))
-        acc_bits = ''
-    acc_bits += bit
-for i in range(8 - len(acc_bits)):
-    acc_bits += '0'
-bytes_to_write.append(int(acc_bits, 2))
-bytes_to_write = bytes_to_write[:-1]  # removing the last null char
-file.write(bytes(bytes_to_write))
-file.close()
+write_to_file('enwik.un', uncompressed_data)
 
-assert enwik == open('enwik.un', 'rb').read() + b'\x00'
+assert enwik == open('enwik.un', 'rb').read()

@@ -11,7 +11,20 @@ def bitstream(data):
         bits = format(byte, '08b')
         for b in bits:
             yield b
-
+def write_to_file(fname, data):
+    file = open(fname, 'wb')
+    bytes_to_write = []
+    acc_bits = ''
+    for bit in data:
+        if len(acc_bits) == 8:
+            bytes_to_write.append(int(acc_bits, 2))
+            acc_bits = ''
+        acc_bits += bit
+    for i in range(8 - len(acc_bits)):
+        acc_bits += '0'
+    bytes_to_write.append(int(acc_bits, 2))
+    file.write(bytes(bytes_to_write))
+    file.close()
 
 class Encoder:
     def __init__(self):
