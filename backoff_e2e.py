@@ -1,50 +1,33 @@
 import math
 from collections import defaultdict
-
-
-def bitstream(data):
-    for byte in data:
-        bits = format(byte, '08b')
-        for b in bits:
-            yield b
+from coding import bitstream, Encoder, Decoder
 
 
 enwik = open('enwik3', 'rb').read() + b'\x00'  # adding a byte to the end to make sure the last bit is written
 enwik_zip = open('enwik3.zip', 'rb').read()
 print(f'gzip compression factor {len(enwik) / len(enwik_zip)}')
 
-compressed_data = ''
 freqs = defaultdict(lambda: [1, 1])  # freqs[context] = [0s, 1s]
 n = 17
 context = '0' * n
-low = 0
-high = 255  # highest 8-bit number also the infinite stream of 1s
+
+encoder = Encoder()
 for bit in (bitstream(enwik)):
     min_n = 0
     while sum(freqs[context[min_n:]]) == 2 and min_n < n - 1:
         min_n += 1
     prob = freqs[context[min_n:]][0] / sum(freqs[context[min_n:]])
-    r = high - low
-    point = low + int(prob * r)
+    encoder.encode(bit, prob)
     if bit == '1':
         for i in range(n):
             freqs[context[i:]][1] += 1
-        low = point + 1
     else:
         for i in range(n):
             freqs[context[i:]][0] += 1
-        high = point
     context += bit
     context = context[-n:]
-    while (high >> 7) == (low >> 7):
-        minus = 0
-        if high >> 7 == 1:
-            minus = 256
-        compressed_data += str(high >> 7)
-        high = (high << 1) - minus + 1
-        low = (low << 1) - minus
-    assert high > low, f"{high}, {low}"
 
+compressed_data = encoder.compressed_data
 print(len(enwik)-1, math.ceil(len(compressed_data) / 8), len(enwik_zip))
 
 # saving the compressed file
@@ -67,58 +50,28 @@ file.close()
 
 compressed_data = open('enwik.ht', 'rb').read()
 bit_stream = bitstream(compressed_data)
-binary_num = ''
-for i in range(8):
-    binary_num += next(bit_stream)
-num = int(binary_num, 2)
+decoder = Decoder(bit_stream)
 
-uncompressed_data = ''
 freqs = defaultdict(lambda: [1, 1])
 context = '0' * n
-low = 0
-high = 255
-i = 8
-while i < len(compressed_data) * 8:
+while True:
     min_n = 0
     while sum(freqs[context[min_n:]]) == 2 and min_n < n - 1:
         min_n += 1
     prob = freqs[context[min_n:]][0] / sum(freqs[context[min_n:]])
-    r = high - low
-    point = low + int(prob * r)
-    if num > point:
-        uncompressed_data += '1'
+    next_bit = decoder.decode(prob)
+    if next_bit is None:
+        break
+    if next_bit == '1':
         for i in range(n):
             freqs[context[i:]][1] += 1
-        low = point + 1
-        context += uncompressed_data[-1]
+        context += next_bit
     else:
-        uncompressed_data += '0'
         for i in range(n):
             freqs[context[i:]][0] += 1
-        high = point
-        context += uncompressed_data[-1]
+        context += next_bit
     context = context[-n:]
-    while (high >> 7) == (low >> 7):
-        minus = 0
-        if high >> 7 == 1:
-            minus = 256
-        high = (high << 1) - minus + 1
-        low = (low << 1) - minus
-        if (num >> 7) == 1:
-            minus = 256
-        else:
-            minus = 0
-        next_bit = next(bit_stream, None)
-        if next_bit is None:
-            num = None
-            break
-        num = (num << 1) - minus + int(next_bit)
-
-        i += 1
-    if num is None:
-        break
-    # input()
-
+uncompressed_data = decoder.uncompressed_data
 file = open('enwik.un', 'wb')
 bytes_to_write = []
 acc_bits = ''

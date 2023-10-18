@@ -13,13 +13,6 @@ def bitstream(data):
             yield b
 
 
-enwik = open('enwik3', 'rb').read() + b'\x00'  # adding a byte to the end to make sure the last bit is written
-enwik_zip = open('enwik3.zip', 'rb').read()
-print(f'gzip compression factor {len(enwik) / len(enwik_zip)}')
-
-counts = [1, 1]
-
-
 class Encoder:
     def __init__(self):
         self.low = 0
@@ -41,40 +34,6 @@ class Encoder:
             self.high = (self.high << 1) - minus + 1
             self.low = (self.low << 1) - minus
         assert self.high > self.low, f"{self.high}, {self.low}"
-
-
-encoder = Encoder()
-for bit in tqdm(bitstream(enwik)):
-    prob = counts[0] / sum(counts)  # probability of a 0 next
-    encoder.encode(bit, prob)
-    if bit == '1':
-        counts[1] += 1
-    else:
-        counts[0] += 1
-compressed_data = encoder.compressed_data
-
-print(len(enwik), math.ceil(len(compressed_data) / 8))
-
-# saving the compressed file
-file = open('enwik.ht', 'wb')
-bytes_to_write = []
-acc_bits = ''
-for bit in compressed_data:
-    if len(acc_bits) == 8:
-        bytes_to_write.append(int(acc_bits, 2))
-        acc_bits = ''
-    acc_bits += bit
-for i in range(8 - len(acc_bits)):
-    acc_bits += '0'
-bytes_to_write.append(int(acc_bits, 2))
-file.write(bytes(bytes_to_write))
-file.close()
-
-# assert False
-# decompressing
-
-compressed_data = open('enwik.ht', 'rb').read()
-bit_stream = bitstream(compressed_data)
 
 
 class Decoder:
@@ -116,33 +75,3 @@ class Decoder:
                 return None
             self.num = (self.num << 1) - minus + int(next_bit)
         return self.uncompressed_data[-1]
-
-
-counts = [1, 1]
-decoder = Decoder(bit_stream)
-while True:
-    prob = counts[0] / sum(counts)
-    next_bit = decoder.decode(prob)
-    if next_bit is None:
-        break
-    if next_bit == '1':
-        counts[1] += 1
-    else:
-        counts[0] += 1
-uncompressed_data = decoder.uncompressed_data
-file = open('enwik.un', 'wb')
-bytes_to_write = []
-acc_bits = ''
-for bit in uncompressed_data:
-    if len(acc_bits) == 8:
-        bytes_to_write.append(int(acc_bits, 2))
-        acc_bits = ''
-    acc_bits += bit
-for i in range(8 - len(acc_bits)):
-    acc_bits += '0'
-bytes_to_write.append(int(acc_bits, 2))
-bytes_to_write = bytes_to_write[:-1]  # removing the last null char
-file.write(bytes(bytes_to_write))
-file.close()
-
-assert enwik == open('enwik.un', 'rb').read() + b'\x00'
