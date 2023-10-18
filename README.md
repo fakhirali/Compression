@@ -8,5 +8,7 @@ We want to code the most probable symbols in the least amount of bits. And vice 
 Coding is solved.
 Modelling is proved unsolvable.
 
-On [enwik6](./enwik6) GZIP := 2.8 ME:= 2.54
-
+On first 1000 bytes of wikipedia 
+gzip :: 508 bytes
+16 bit n-gram :: 522 bytes
+17 bit n-gram + backoff :: 510 bytes
