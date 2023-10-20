@@ -11,3 +11,7 @@ a new idea. It orders the articles based on mutual information using Doc2Vec.
 I like the submissions that have a new insight or idea with them instead of just 
 being more computationally efficient, even though being efficient is also a big deal.
 The winners all use [cmix](https://www.byronknoll.com/cmix.html).
+
+data + null_char + data + null_char + data + null_char.
+we know how many null_chars there are. The model will be able to learn the data 
+much better given multiple passes.
