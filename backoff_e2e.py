@@ -7,7 +7,7 @@ enwik = open('enwik3', 'rb').read() + b'\x00'  # adding a byte to the end to mak
 enwik_zip = open('enwik3.zip', 'rb').read()
 
 freqs = defaultdict(lambda: [1, 1])  # freqs[context] = [0s, 1s]
-n = 17
+n = 16
 context = '0' * n
 theoretical_compression = 0
 encoder = Encoder()
