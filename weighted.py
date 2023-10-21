@@ -1,20 +1,16 @@
-import math
 from collections import defaultdict
-from coding import bitstream, Encoder, Decoder, write_to_file
 import numpy as np
 import TensionFlowFakhir.TensionFlow as tf #from pip install TensionFlowFakhir
+from utils import run_model
 
 
-class Weighted:
-    def __init__(self, n, lr=1e-3):
+class LearnedWeighted:
+    def __init__(self, n, lr=1e2):
         self.n = n
         self.lr = lr
         self.freqs = defaultdict(lambda: [1, 1])
         self.context = '0' * n
-        # self.weights = np.linspace(0, 1, n + 1)[1:] ** 5
         self.weights = np.ones(n)
-        self.weights = self.weights / self.weights.sum()  # so that the sum of weights is 1
-        self.weights = self.weights[::-1]  # so that the first weight is the highest
         self.weights = tf.Neuron(self.weights)
         self.loss = None
 
@@ -23,7 +19,7 @@ class Weighted:
         for i in range(self.n):
             probs.append(self.freqs[self.context[i:]][0] / sum(self.freqs[self.context[i:]]))
         probs = tf.Neuron(np.array(probs))
-        prob_sum = (probs * self.weights).sum()
+        prob_sum = (probs * (self.weights / self.weights.sum()[0])).sum()
         self.loss = prob_sum
         return prob_sum.value[0]
 
@@ -40,46 +36,16 @@ class Weighted:
         self.context = self.context[-self.n:]
         self.loss.backward()
         self.weights.value -= self.weights.grad * self.lr
-        self.weights.value = self.weights.value.clip(min=0) #relu?
-        self.weights.value = self.weights.value / self.weights.value.sum()
         self.loss.backward_zero_grad()
 
+    def reset(self):
+        self.__init__(self.n, self.lr)
+
+
 if __name__ == '__main__':
-    n = 16
-    filename = 'files/enwik3'
-    enwik = open(filename, 'rb').read() + b'\x00'  # adding a byte to the end to make sure the last bit is written
-    enwik_zip = open(f'{filename}.zip', 'rb').read()
+    n = 24
+    lr = 1e3
+    weighted_contexts = LearnedWeighted(n, lr)
+    compressed_size, theoretical_compression = run_model(weighted_contexts)
+    print(compressed_size, theoretical_compression)
 
-    weighted_contexts = Weighted(n)
-    theoretical_compression = 0
-    encoder = Encoder()
-    for bit in (bitstream(enwik)):
-        prob = weighted_contexts.get_prob()
-        encoder.encode(bit, prob)
-        weighted_contexts.update(bit)
-        if bit == '1':
-            theoretical_compression += math.log2(1 / (1 - prob))
-        else:
-            theoretical_compression += math.log2(1 / prob)
-
-    compressed_data = encoder.compressed_data
-    print(len(enwik) - 1, math.ceil(len(compressed_data) / 8), len(enwik_zip), theoretical_compression / 8)
-    print("weights: ", weighted_contexts.weights.value)
-    # saving the compressed file
-    write_to_file(f'{filename}.ht', compressed_data)
-
-    # decompressing
-    compressed_data = open(f'{filename}.ht', 'rb').read()
-    bit_stream = bitstream(compressed_data)
-    decoder = Decoder(bit_stream)
-    weighted_contexts = Weighted(n)
-    while True:
-        prob = weighted_contexts.get_prob()
-        next_bit = decoder.decode(prob)
-        if next_bit is None:
-            break
-        weighted_contexts.update(next_bit)
-    uncompressed_data = decoder.uncompressed_data
-    write_to_file(f'{filename}.un', uncompressed_data)
-
-    assert enwik == open(f'{filename}.un', 'rb').read()

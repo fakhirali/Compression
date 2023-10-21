@@ -1,6 +1,5 @@
-import math
 from collections import defaultdict
-from coding import bitstream, Encoder, Decoder, write_to_file
+from utils import run_model
 
 
 class Backoff:
@@ -22,43 +21,13 @@ class Backoff:
         self.context += bit
         self.context = self.context[-self.n:]
 
+    def reset(self):
+        self.freqs = defaultdict(lambda: [1, 1])
+        self.context = '0' * self.n
+
 
 if __name__ == '__main__':
-    filename = 'files/enwik3'
-    enwik = open(f'{filename}', 'rb').read() + b'\x00'  # adding a byte to the end to make sure the last bit is written
-    enwik_zip = open(f'{filename}.zip', 'rb').read()
-
     n = 16
-    backoff = Backoff(n)
-    theoretical_compression = 0
-    encoder = Encoder()
-    for bit in (bitstream(enwik)):
-        prob = backoff.get_prob()
-        encoder.encode(bit, prob)
-        theoretical_compression += math.log2(1 / (1 - prob)) if bit == '1' else math.log2(1 / prob)
-        backoff.update(bit)
-
-    compressed_data = encoder.compressed_data
-    print(len(enwik) - 1, math.ceil(len(compressed_data) / 8), len(enwik_zip), theoretical_compression / 8)
-
-    # saving the compressed file
-    write_to_file(f'{filename}.ht', compressed_data)
-
-    # assert False
-    # decompressing
-
-    compressed_data = open(f'{filename}.ht', 'rb').read()
-    bit_stream = bitstream(compressed_data)
-    decoder = Decoder(bit_stream)
-
-    backoff = Backoff(n)
-    while True:
-        prob = backoff.get_prob()
-        next_bit = decoder.decode(prob)
-        if next_bit is None:
-            break
-        backoff.update(next_bit)
-    uncompressed_data = decoder.uncompressed_data
-    write_to_file(f'{filename}.un', uncompressed_data)
-
-    assert enwik == open(f'{filename}.un', 'rb').read()
+    backoff_model = Backoff(n)
+    compressed_size, theoretical_compression = run_model(backoff_model)
+    print(compressed_size, theoretical_compression)

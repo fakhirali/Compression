@@ -14,4 +14,4 @@ The winners all use [cmix](https://www.byronknoll.com/cmix.html).
 
 data + null_char + data + null_char + data + null_char.
 we know how many null_chars there are. The model will be able to learn the data 
-much better given multiple passes.
+much better given multiple passes. But compression would have to be done on all 3. (Not possible)

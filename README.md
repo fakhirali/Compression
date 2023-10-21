@@ -11,4 +11,5 @@ Modelling is proved unsolvable.
 On first 1000 bytes of wikipedia  
 gzip :: 508 bytes  
 16 bit n-gram :: 522 bytes  
-17 bit n-gram + backoff :: 510 bytes  
+16 bit n-gram + backoff :: 513 bytes  
+16 bit learned weighted n-gram :: 587 bytes
