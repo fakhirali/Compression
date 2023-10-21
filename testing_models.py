@@ -80,7 +80,7 @@ def update_readme(table, description):
 
 if __name__ == "__main__":
     size = int(1e3)
-    n_tests = 5
+    n_tests = 3
     n = 16
     starts = np.random.randint(0, int(1e9), n_tests)
     model_results = dict()

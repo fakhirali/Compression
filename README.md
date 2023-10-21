@@ -14,13 +14,16 @@ gzip :: 508 bytes
 16 bit n-gram + backoff :: 513 bytes  
 16 bit learned weighted n-gram :: 587 bytes
 
+TODO:
+- [ ] Code with more bits to improve precision
+
 Results: 
 
- averaged on 5 random samples of 1000 bytes from enwik9
+ averaged on 3 random samples of 1000 bytes from enwik9
 
 | Model | Compressed Size | Theoretical Compression |
 | --- | --- | --- |
-| zip | 581.2 | N/A |
-| Ngram | 746.6 | 742.3738235079363 |
-| Backoff | 714.0 | 709.9146029918569 |
-| LearnedWeighted | 741.8 | 737.0351318382407 |
+| zip | 382.6666666666667 | N/A |
+| Ngram | 573.6666666666666 | 566.1230212214556 |
+| Backoff | 556.0 | 549.1950639647857 |
+| LearnedWeighted | 622.6666666666666 | 615.2785268782923 |

@@ -3,7 +3,7 @@ import math
 
 
 def run_model(model, data):
-    data = data + b'\x00'  # adding a byte to the end to make sure the last bit is written
+    data = data + b'\x00'
     theoretical_compression = 0
     encoder = Encoder()
     for bit in (bitstream(data)):

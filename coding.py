@@ -27,7 +27,8 @@ def write_to_file(file_name, data):
 class Encoder:
     def __init__(self):
         self.low = 0
-        self.high = 255
+        self.n_bits = 8
+        self.high = (1 << self.n_bits)-1
         self.compressed_data = ''
 
     def encode(self, bit, prob):
@@ -42,11 +43,11 @@ class Encoder:
             self.low = point + 1
         else:
             self.high = point
-        while (self.high >> 7) == (self.low >> 7):
+        while (self.high >> (self.n_bits-1)) == (self.low >> (self.n_bits-1)):
             minus = 0
-            if self.high >> 7 == 1:
-                minus = 256
-            self.compressed_data += str(self.high >> 7)
+            if self.high >> (self.n_bits-1) == 1:
+                minus = 1 << self.n_bits
+            self.compressed_data += str(self.high >> (self.n_bits-1))
             self.high = (self.high << 1) - minus + 1
             self.low = (self.low << 1) - minus
         assert self.high > self.low, f"{self.high}, {self.low}"
@@ -54,17 +55,17 @@ class Encoder:
 
 class Decoder:
     def __init__(self, bit_stream):
+        self.n_bits = 8
         self.low = 0
-        self.high = 255
+        self.high = (1 << self.n_bits)-1
         self.num = None
-        self.i = 0
         self.uncompressed_data = ''
         self.bit_stream = bit_stream
 
     def decode(self, prob):
         if self.num is None:
             binary_num = ''
-            for i in range(8):
+            for i in range(self.n_bits):
                 binary_num += next(self.bit_stream)
             self.num = int(binary_num, 2)
         r = self.high - self.low
@@ -75,19 +76,18 @@ class Decoder:
         else:
             self.uncompressed_data += '0'
             self.high = point
-        while (self.high >> 7) == (self.low >> 7):
+        while (self.high >> (self.n_bits-1)) == (self.low >> (self.n_bits-1)):
             minus = 0
-            if self.high >> 7 == 1:
-                minus = 256
+            if self.high >> (self.n_bits-1) == 1:
+                minus = 1 << self.n_bits
             self.high = (self.high << 1) - minus + 1
             self.low = (self.low << 1) - minus
-            if (self.num >> 7) == 1:
-                minus = 256
+            if (self.num >> (self.n_bits-1)) == 1:
+                minus = 1 << self.n_bits
             else:
                 minus = 0
             next_bit = next(self.bit_stream, None)
             if next_bit is None:
-                self.num = None
                 return None
             self.num = (self.num << 1) - minus + int(next_bit)
         return self.uncompressed_data[-1]
