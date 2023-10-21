@@ -46,9 +46,10 @@ class Weighted:
 
 if __name__ == '__main__':
     n = 16
+    filename = 'files/enwik3'
+    enwik = open(filename, 'rb').read() + b'\x00'  # adding a byte to the end to make sure the last bit is written
+    enwik_zip = open(f'{filename}.zip', 'rb').read()
 
-    enwik = open('enwik3', 'rb').read() + b'\x00'  # adding a byte to the end to make sure the last bit is written
-    enwik_zip = open('enwik3.zip', 'rb').read()
     weighted_contexts = Weighted(n)
     theoretical_compression = 0
     encoder = Encoder()
@@ -63,14 +64,12 @@ if __name__ == '__main__':
 
     compressed_data = encoder.compressed_data
     print(len(enwik) - 1, math.ceil(len(compressed_data) / 8), len(enwik_zip), theoretical_compression / 8)
-    print(weighted_contexts.weights.value)
+    print("weights: ", weighted_contexts.weights.value)
     # saving the compressed file
-    write_to_file('enwik.ht', compressed_data)
+    write_to_file(f'{filename}.ht', compressed_data)
 
-    # assert False
     # decompressing
-
-    compressed_data = open('enwik.ht', 'rb').read()
+    compressed_data = open(f'{filename}.ht', 'rb').read()
     bit_stream = bitstream(compressed_data)
     decoder = Decoder(bit_stream)
     weighted_contexts = Weighted(n)
@@ -80,8 +79,7 @@ if __name__ == '__main__':
         if next_bit is None:
             break
         weighted_contexts.update(next_bit)
-
     uncompressed_data = decoder.uncompressed_data
-    write_to_file('enwik.un', uncompressed_data)
+    write_to_file(f'{filename}.un', uncompressed_data)
 
-    assert enwik == open('enwik.un', 'rb').read()
+    assert enwik == open(f'{filename}.un', 'rb').read()
