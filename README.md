@@ -20,7 +20,7 @@ Results:
 
 | Model | Compressed Size | Theoretical Compression |
 | --- | --- | --- |
-| zip | 576.2 | N/A |
-| Ngram_16 | 751.6 | 747.0501653413878 |
-| Backoff_16 | 715.4 | 711.4384452676097 |
-| LearnedWeighted_16 | 737.8 | 732.9907825118808 |
+| zip | 581.2 | N/A |
+| Ngram | 746.6 | 742.3738235079363 |
+| Backoff | 714.0 | 709.9146029918569 |
+| LearnedWeighted | 741.8 | 737.0351318382407 |

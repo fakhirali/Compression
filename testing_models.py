@@ -87,19 +87,13 @@ if __name__ == "__main__":
 
     zip_size = get_zip_results(starts, size)
     model_results['zip'] = [zip_size, 'N/A']
-
-    model = Ngram(n)
-    c, t = get_model_results(model, starts, size)
-    model_results[f'Ngram_{n}'] = [c, t]
-
-    model = Backoff(n)
-    c, t = get_model_results(model, starts, size)
-    model_results[f'Backoff_{n}'] = [c, t]
-
-    model = LearnedWeighted(n)
-    c, t = get_model_results(model, starts, size)
-    model_results[f'LearnedWeighted_{n}'] = [c, t]
-
+    model_names = ['Ngram', 'Backoff', 'LearnedWeighted']
+    models = [Ngram(n), Backoff(n), LearnedWeighted(n)]
+    for i in range(len(model_names)):
+        model = models[i]
+        model_name = model_names[i]
+        c, t = get_model_results(model, starts, size)
+        model_results[model_name] = [c, t]
     table = format_into_table(model_results)
     description = f'Results: \n\n averaged on {n_tests} random samples of {size} bytes from enwik9\n'
     update_readme(table, description)
