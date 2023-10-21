@@ -27,7 +27,8 @@ class Backoff:
 
 
 if __name__ == '__main__':
+    data = open('files/enwik3', 'rb').read()
     n = 16
     backoff_model = Backoff(n)
-    compressed_size, theoretical_compression = run_model(backoff_model)
+    compressed_size, theoretical_compression = run_model(backoff_model, data)
     print(compressed_size, theoretical_compression)

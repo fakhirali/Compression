@@ -45,7 +45,8 @@ class LearnedWeighted:
 if __name__ == '__main__':
     n = 24
     lr = 1e3
+    data = open('files/enwik3', 'rb').read()
     weighted_contexts = LearnedWeighted(n, lr)
-    compressed_size, theoretical_compression = run_model(weighted_contexts)
+    compressed_size, theoretical_compression = run_model(weighted_contexts, data)
     print(compressed_size, theoretical_compression)
 

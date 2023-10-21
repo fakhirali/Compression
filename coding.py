@@ -1,18 +1,10 @@
-# simple char frequency encoder decoder
-import numpy as np
-from collections import defaultdict
-import math
-from tqdm import tqdm
-import time
-
-
 def bitstream(data):
     for byte in data:
         bits = format(byte, '08b')
         for b in bits:
             yield b
-def write_to_file(fname, data):
-    file = open(fname, 'wb')
+
+def get_bytes_to_write(data):
     bytes_to_write = []
     acc_bits = ''
     for bit in data:
@@ -23,8 +15,14 @@ def write_to_file(fname, data):
     for i in range(8 - len(acc_bits)):
         acc_bits += '0'
     bytes_to_write.append(int(acc_bits, 2))
-    file.write(bytes(bytes_to_write))
+    return bytes(bytes_to_write)
+
+def write_to_file(file_name, data):
+    file = open(file_name, 'wb')
+    bytes_to_write = get_bytes_to_write(data)
+    file.write(bytes_to_write)
     file.close()
+
 
 class Encoder:
     def __init__(self):
@@ -33,12 +31,11 @@ class Encoder:
         self.compressed_data = ''
 
     def encode(self, bit, prob):
-        '''
-        
-        :param bit: 
+        """
+        :param bit:
         :param prob: of the bit being 0
-        :return: 
-        '''
+        :return:
+        """
         r = self.high - self.low
         point = self.low + int(prob * r)
         if bit == '1':

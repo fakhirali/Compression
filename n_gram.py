@@ -24,7 +24,8 @@ class Ngram:
 
 
 if __name__ == '__main__':
+    data = open('files/enwik3', 'rb').read()
     n = 16
     ngram_model = Ngram(n)
-    compressed_size, theoretical_compression = run_model(ngram_model)
+    compressed_size, theoretical_compression = run_model(ngram_model, data)
     print(compressed_size, theoretical_compression)
