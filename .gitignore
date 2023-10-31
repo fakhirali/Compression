@@ -1,6 +1,6 @@
 .ipynb_checkpoints/
 .idea/
 __pycache__/
-*.ipynb
+ScratchPad.ipynb
 *.out
 files/enwik9

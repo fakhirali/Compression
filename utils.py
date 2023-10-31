@@ -3,6 +3,12 @@ import math
 
 
 def compress(model, data):
+    '''
+    Compresses the data using the model and returns the compressed data and theoretical compression
+    :param model:
+    :param data:
+    :return: compressed data, theoretical compression
+    '''
     data = data + b'\x00'
     encoder = Encoder()
     theoretical_compression = 0
@@ -19,6 +25,12 @@ def compress(model, data):
 
 
 def decompress(model, compressed_data):
+    '''
+    Decompresses the compressed data using the model and returns the uncompressed data
+    :param model:
+    :param compressed_data:
+    :return: uncompressed data
+    '''
     bit_stream = bitstream(compressed_data)
     decoder = Decoder(bit_stream)
     model.reset()
