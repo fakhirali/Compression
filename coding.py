@@ -25,9 +25,9 @@ def write_to_file(file_name, data):
 
 
 class Encoder:
-    def __init__(self):
+    def __init__(self, n_bits=8):
         self.low = 0
-        self.n_bits = 8
+        self.n_bits = n_bits
         self.high = (1 << self.n_bits)-1
         self.compressed_data = ''
 
@@ -54,8 +54,8 @@ class Encoder:
 
 
 class Decoder:
-    def __init__(self, bit_stream):
-        self.n_bits = 8
+    def __init__(self, bit_stream, n_bits=8):
+        self.n_bits = n_bits
         self.low = 0
         self.high = (1 << self.n_bits)-1
         self.num = None
@@ -88,6 +88,9 @@ class Decoder:
                 minus = 0
             next_bit = next(self.bit_stream, None)
             if next_bit is None:
+                # self.num = (self.num << 1) - minus
+                # print(format(self.low, f'0{self.n_bits}b'), format(self.high, f'0{self.n_bits}b'), format(self.num, f'0{self.n_bits}b'))
+                # self.uncompressed_data += format(self.num, f'0{self.n_bits}b')
                 return None
             self.num = (self.num << 1) - minus + int(next_bit)
         return self.uncompressed_data[-1]
