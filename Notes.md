@@ -4,6 +4,9 @@ Things I've been reading:
 - [Machine Super Intelligence](https://www.vetta.org/documents/Machine_Super_Intelligence.pdf)
   - Suggested by [Marcus Hutter](http://www.hutter1.net/ai/introref.htm)
 
+### Neural Networks
+Neural Network initialization would have to be deterministic. 
+Same random seed will work? Neural Networks love more context.
 
 ### Ideas
 [starlit](https://github.com/amargaritov/starlit#starlit-algorithm-description) was the latest winner that had
