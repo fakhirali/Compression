@@ -2,10 +2,10 @@ from coding import bitstream, Encoder, Decoder, write_to_file, get_bytes_to_writ
 import math
 
 
-def run_model(model, data):
+def compress(model, data):
     data = data + b'\x00'
-    theoretical_compression = 0
     encoder = Encoder()
+    theoretical_compression = 0
     for bit in (bitstream(data)):
         prob = model.get_prob()
         encoder.encode(bit, prob)
@@ -14,13 +14,11 @@ def run_model(model, data):
             theoretical_compression += math.log2(1 / (1 - prob))
         else:
             theoretical_compression += math.log2(1 / prob)
-
     compressed_data = encoder.compressed_data
-    # saving the compressed file
-    compressed_size = math.ceil(len(compressed_data) / 8)
+    return compressed_data, theoretical_compression
 
-    compressed_data = get_bytes_to_write(compressed_data)
-    # decompressing
+
+def decompress(model, compressed_data):
     bit_stream = bitstream(compressed_data)
     decoder = Decoder(bit_stream)
     model.reset()
@@ -31,7 +29,16 @@ def run_model(model, data):
             break
         model.update(next_bit)
     uncompressed_data = decoder.uncompressed_data
+    return uncompressed_data
+
+
+def run_model(model, data):
+    compressed_data, theoretical_compression = compress(model, data)
+    compressed_size = math.ceil(len(compressed_data) / 8)
+    compressed_data = get_bytes_to_write(compressed_data)
+
+    uncompressed_data = decompress(model, compressed_data)
     uncompressed_data = get_bytes_to_write(uncompressed_data)
     model.reset()
-    assert data == uncompressed_data, "Decompressed file is not the same as the original file"
+    assert data + b'\x00' == uncompressed_data, "Decompressed file is not the same as the original file"
     return compressed_size, theoretical_compression / 8

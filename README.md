@@ -16,8 +16,6 @@ gzip :: 508 bytes
 
 TODO:
 - [ ] Code with more bits to improve precision
-- [ ] Time testing
-- [ ] Seeing how model scales with more data
 
 Results: 
 
@@ -25,7 +23,7 @@ Results:
 
 | Model | Compressed Size | Theoretical Compression |
 | --- | --- | --- |
-| zip | 569.3333333333334 | N/A |
-| Ngram | 741.3333333333334 | 736.5475483723066 |
-| Backoff | 703.6666666666666 | 699.5420570161597 |
-| LearnedWeighted | 731.3333333333334 | 725.454829890491 |
+| zip | 532.3333333333334 | N/A |
+| Ngram | 722.3333333333334 | 717.4846796689859 |
+| Backoff | 685.0 | 680.7137133275579 |
+| LearnedWeighted | 718.3333333333334 | 712.3682375572251 |
