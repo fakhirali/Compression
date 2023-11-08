@@ -14,6 +14,9 @@ gzip :: 508 bytes
 16 bit n-gram + backoff :: 513 bytes  
 16 bit learned weighted n-gram :: 587 bytes
 
+You can test your models too! [Docs](Docs.ipynb) 
+
+
 TODO:
 - [ ] Code with more bits to improve precision
 

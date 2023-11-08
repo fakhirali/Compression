@@ -123,9 +123,3 @@ print(decompressed_data)
 ```
 
     b"rve an ancient Celtic practice of a trial marriage for a year and a day, which some traditions hold should be contracted on Lammas (Lughnasadh), although this is far from universal. This practice is attested from centuries ago in the fourth and fifth volumes of the [[Brehon]] law texts, which are compilations of the opinions and judgements of the Brehon class of Druids (in this case, Irish). The texts as a whole deal with a copious amount of detail for the ancient Celtic tribes in the [[British Isles|Isles]].(O'Donovan, 2000) When someone is being initiated into a coven, it is also traditional to study with the coven for a year and a day before their actual initiation into the religion, and some Solitary Wiccans choose to study for a year and a day before dedicating themselves to the religion. Wiccans can also be &quot;promoted&quot; into higher ranks such as head priestess or head priest. Rank can be shown through coloured cords{{fact}}. Initiation can include a dramatic aspect, like \x00"
-
-
-
-```python
-
-```
