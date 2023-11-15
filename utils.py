@@ -2,7 +2,7 @@ from coding import bitstream, Encoder, Decoder, write_to_file, get_bytes_to_writ
 import math
 
 
-def compress(model, data):
+def compress(model, data, theoretical_only=False):
     '''
     Compresses the data using the model and returns the compressed data and theoretical compression
     :param model:
@@ -14,13 +14,17 @@ def compress(model, data):
     theoretical_compression = 0
     for bit in (bitstream(data)):
         prob = model.get_prob()
-        encoder.encode(bit, prob)
+        if not theoretical_only:
+            encoder.encode(bit, prob)
         model.update(bit)
         if bit == '1':
             theoretical_compression += math.log2(1 / (1 - prob))
         else:
             theoretical_compression += math.log2(1 / prob)
-    compressed_data = encoder.compressed_data
+    if not theoretical_only:
+        compressed_data = encoder.compressed_data
+    else:
+        compressed_data = None
     return compressed_data, theoretical_compression
 
 
