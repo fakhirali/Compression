@@ -19,6 +19,7 @@ You can test your models too! [Docs](Docs.ipynb)
 
 TODO:
 - [ ] Code with more bits to improve precision
+- [ ] Test compression ratio w/ more data
 
 Results: 
 
