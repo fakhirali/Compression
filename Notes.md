@@ -18,3 +18,7 @@ The winners all use [cmix](https://www.byronknoll.com/cmix.html).
 data + null_char + data + null_char + data + null_char.
 we know how many null_chars there are. The model will be able to learn the data 
 much better given multiple passes. But compression would have to be done on all 3. (Not possible)
+
+Compression is pretty much sorting. Something sorted can be very easily compressed. The more
+random something is, the harder it is to compress. If a program can sort the data, it is the same as compressing it.
+However sorting would have to be done so that it can be reversed. Maybe that is the difference.
